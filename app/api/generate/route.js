@@ -29,10 +29,10 @@ you are a flashcard creator. Your task is to generate flashcards based on given 
 `
 
 export async function POST(req){
-    const openai=OpenAI();
+    const openai= new OpenAI();
     const data= await req.text();
 
-    const completion = await openai.chat.completion.create({
+    const completion = await openai.chat.completions.create({
 
         model:"gpt-3.5-turbo",
         response_format:{ type:"json_object"},

@@ -12,6 +12,11 @@ import {
     CardContent,
     Paper,
     CardActionArea,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    DialogContentText,
 } from '@mui/material'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
@@ -57,7 +62,7 @@ export default function Generate(){
         }
     }
 
-    const handleClick=(id) =>{
+    const handleCardClick=(id) =>{
         setFlipped((prev)=>({
             ...prev,
             [id]:!prev[id],
@@ -115,7 +120,6 @@ export default function Generate(){
 
     return (
         <Container maxWidth="md">
-            <Typography>Hello</Typography>
              <Box sx={{my:4,
                 display:"flex",
                 flexDirection:"column",
@@ -157,7 +161,7 @@ export default function Generate(){
                                 <Card>
                                     <CardActionArea
                                     onClick={()=>{
-                                        handleClick(index)
+                                        handleCardClick(index)
                                     }}
                                     >
                                     <CardContent>
@@ -218,9 +222,40 @@ export default function Generate(){
                         ))}
 
                     </Grid>
+
+                    <Box sx={{mt:4, display:'flex', justifyContent:'center'}}
+                    >
+                            <Button variant="contained" color="secondary"
+                            onClick={handleOpen}>
+                                Submit
+                            </Button>
+                    </Box>
                 </Box>
             )}
 
+
+
+        <Dialog open={open} onClose={handleClose}>
+            <DialogTitle> Save Flashcards</DialogTitle>
+            <DialogContent>
+                <DialogContentText> 
+                    Please enter a name for your flashcards collection
+                </DialogContentText>
+                <TextField autoFocus
+                margin='dense'
+                label="Collection Name"
+                type='text'
+                fullWidth
+                value={name}
+                onChange={(e)=> setName(e.target.value)}
+                variant="outlined"
+                ></TextField>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleClose}>Cancel</Button>
+                <Button onClick={saveFlashcards}>Save</Button>
+            </DialogActions>
+        </Dialog>
 
 
         </Container>
