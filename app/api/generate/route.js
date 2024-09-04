@@ -1,8 +1,10 @@
-import { NextResponse } from "next/server";
-import OpenAI from "openai";
+
+
+import { NextResponse } from 'next/server';
+import { initializeChat, sendMessage } from './helper';
 
 const systemPrompt=`
-you are a flashcard creator. Your task is to generate flashcards based on given prompts.
+you are a flashcard creator. Your task is to generate flashcards based on given prompts. you dont 
  Each prompt will consist of a question and an answer. You should generate a flashcard 
  that includes the question and the answer. The answer should be a concise and accurate
   response to the question. Remember to provide clear and informative flashcards that are
@@ -27,30 +29,38 @@ you are a flashcard creator. Your task is to generate flashcards based on given 
     }
    
 `
+console.log(typeof(systemPrompt));
 
 export async function POST(req){
-    const openai= new OpenAI();
-    const data= await req.text();
 
-    const completion = await openai.chat.completions.create({
+    const body= await req.json();
+    console.log("request body", body)
+    const {message,conversation}= body;
+    
+    console.log("GENERTE route ", conversation!=null)
+    if (!conversation){
+        console.log("New Conversation!")
+        const newConversation = initializeChat(systemPrompt);
 
-        model:"gpt-3.5-turbo",
-        response_format:{ type:"json_object"},
-        messages:[
-            {
-                role:"system",
-                content:systemPrompt
-            },
-            {
-                role:"user",
-                content:data
-            }
-        ],
+        console.log("returning nextreponse ")
+        const {flashcards,conversation}= await sendMessage(systemPrompt + "\n" + message,newConversation)
 
-    })
+        return NextResponse.json({
+            flashcards : flashcards,
+            conversation :conversation
+        });
+    }
+    else{
+        console.log("Post conversation",conversation)
+        const {flashcards, newConversation} = await sendMessage(systemPrompt + "\n" + message, conversation);
+        // console.log("got message from send message ");
+        console.log("new conversation", newConversation)
+        return NextResponse.json({
+            flashcards:flashcards ,
+            conversation:newConversation
+        });
 
-    const flashcards= JSON.parse(completion.choices[0].message.content)
+    }
 
-    return NextResponse.json(flashcards.flashcard)
 
 }

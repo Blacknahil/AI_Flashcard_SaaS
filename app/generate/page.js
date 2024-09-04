@@ -33,11 +33,14 @@ export default function Generate(){
     const [name,setName]=useState('')
     const [open,setOpen]=useState(false)
     const router= useRouter()
+    const [conversation, setConversation] = useState('');
 
 
     const handleSubmit = async () => {
         // implement
+        console.log("handle submit",flashcards)
         if (!text.trim()){
+            
             alert('Please enter some text to generate flashcards')
             return
         }
@@ -45,20 +48,32 @@ export default function Generate(){
         try{
             const response = await fetch('/api/generate',{
                 method:'POST',
-                body:text,
+                body:JSON.stringify({
+                    message:text,
+                    conversation:conversation
+                })
             })
 
+            const data = await response.json();
 
-            if (response.ok){
-                throw new Error('Failed to generate flashcards')
-            }
+            console.log("Response Data:", data);
+            console.log("response flashcards", data.flashcards)
+            console.log("response converation", data.conversation)
 
-            const data= await response.json()
+            // Update the flashcards and conversation state
+            setFlashcards(data.flashcards);
+            setConversation(data.conversation);
+            setText('');
+            console.log("conversation after",conversation)
+            console.log("text after", text)
+            console.log("flashcards after", flashcards)
+            console.log("") // Update conversation object
 
-            setFlashcards(data)
+            // Optionally, clear the text input after submission
+            
         } catch(error){
             console.log("Error generating flashcards",error)
-            alert("An error occurred while generating flashcards. please try again.")
+            alert("An error occurred while generating flashcards. please try again.",error)
         }
     }
 
@@ -117,8 +132,10 @@ export default function Generate(){
         
 
     }
-
+    console.log("flashcards", flashcards)
     return (
+        
+
         <Container maxWidth="md">
              <Box sx={{my:4,
                 display:"flex",
@@ -144,12 +161,16 @@ export default function Generate(){
                 color="primary"
                 onClick={handleSubmit}
                 fullWidth
-                > Submit</Button>  
+                > Generate</Button>  
             </Box> 
 
-            {/* flash card display to be added here */}
+            {/* </Container> */}
 
-            {flashcards.length>0 && (
+           {/* flash card display to be added here */}
+
+           
+          {flashcards.length>0 && (
+            
                 <Box sx={{mt:4}}>
                     <Typography variant="h5" component="h2" gutterBottom>
                         flashCards Preview
@@ -177,7 +198,7 @@ export default function Generate(){
                                                 transform:flipped[index] ? 'rotateY(180deg)':'rotateY(0deg)',
                     
                                             },
-                                            '& > div':{
+                                            '& > div > div':{
                                                 position:'absolute',
                                                 width:'100%',
                                                 height:'100%',
@@ -189,7 +210,7 @@ export default function Generate(){
                                                 boxSizing:'border-box',
                     
                                             },
-                                            '& > div > div:':{
+                                            '& > div > div:nth-of-type(2)':{
                                                 transform:'rotateY(180deg)',
                     
                                             }
@@ -208,6 +229,7 @@ export default function Generate(){
                                                     component="div"
                                                     >{flashcard.back}</Typography>
                                                 </div>
+
                                             </div>
                                         </Box>
 
@@ -227,7 +249,7 @@ export default function Generate(){
                     >
                             <Button variant="contained" color="secondary"
                             onClick={handleOpen}>
-                                Submit
+                                Save flashcards
                             </Button>
                     </Box>
                 </Box>
