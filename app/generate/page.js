@@ -100,6 +100,11 @@ export default function Generate(){
             return 
         }
 
+        if(!isSignedIn){
+            alert("Please sign in to save flashcards")
+            return
+        }
+
         const batch = writeBatch(db)
         const userDocRef= doc(collection(db,'users'),user.id)
         const docSnap= await getDoc(userDocRef)
@@ -245,7 +250,7 @@ export default function Generate(){
 
                     </Grid>
 
-                    <Box sx={{mt:4, display:'flex', justifyContent:'center'}}
+                    <Box sx={{mt:4,mb:14, display:'flex', justifyContent:'center'}}
                     >
                             <Button variant="contained" color="secondary"
                             onClick={handleOpen}>
