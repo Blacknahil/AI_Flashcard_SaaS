@@ -138,6 +138,14 @@ export default function Generate(){
 
     }
     console.log("flashcards", flashcards)
+
+    if (!isSignedIn){
+        return <>
+        <Button onClick={
+            router.push("/sign-in")
+        }>Go back to Home</Button>
+        </>
+    }
     return (
         
 

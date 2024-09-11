@@ -32,10 +32,10 @@ export async function POST(req){
               },
             ],
             success_url: `${req.headers.get(
-              'Referer',
+              'origin',
             )}result?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${req.headers.get(
-              'Referer',
+              'origin',
             )}result?session_id={CHECKOUT_SESSION_ID}`,
           }
           

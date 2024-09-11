@@ -1,3 +1,4 @@
+'use client'
 import getStripe from "@/utils/get-stripe";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { AppBar, Container, Toolbar, Typography,
@@ -5,28 +6,31 @@ import { AppBar, Container, Toolbar, Typography,
   Grid,
  } from "@mui/material";
 import Head from "next/head";
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
+  const router= useRouter()
 
   const handleSubmit=async ()=>{
-    const checkoutSession = await fetch('api/checkout_sessions',{
+    const checkoutSession = await fetch('/api/checkout_session',{
       method:"POST",
       headers:{
-        origin:'http://localhost:3000'
+        origin:'http://localhost:3000/'
       }
     })
 
     const checkoutSessionJson=await checkoutSession.json()
 
     if (checkoutSession.statusCode===500){
+      console.log("error code 500")
       console.error(checkoutSession.message)
       return
     }
 
-    const stripe= await getStripe()
-
-    const {error}= await stripe.redirectToCheckout({
-      sessionId:checkoutSessionJson.id
+    const stripe = await getStripe()
+    
+    const {error} = await stripe.redirectToCheckout({
+      sessionId: checkoutSessionJson.id,
     })
 
     if (error){
@@ -34,6 +38,9 @@ export default function Home() {
     }
 
   }
+
+
+
   return (
     <Container>
       <Head>
@@ -57,7 +64,9 @@ export default function Home() {
       <Box sx={{textAlign:'center',my:12,}}>
         <Typography variant="h2"> Welcome to FlashCard SaaS</Typography>
         <Typography variant="h5">The easist way to make flashcards from your text.</Typography>
-        <Button variant="contained" color="primary" sx={{mt:2}}> Get Started</Button>
+        <Button variant="contained" color="primary" sx={{mt:2}} 
+        // onClick={router.push('/generate')}
+        > Get Started</Button>
       </Box>
 
       {/* feature section */}
@@ -122,7 +131,7 @@ export default function Home() {
               <Typography sx={{mb:2}}> Unlimited flashcards and storage, with priority support.</Typography>
 
               <Button variant="contained" color="primary" sx={{mt:2}}
-              onclick={handleSubmit}>Choose Pro</Button>
+              onClick={handleSubmit}>Choose Pro</Button>
             </Box>
           </Grid>
 
