@@ -1,6 +1,6 @@
 'use client'
 import getStripe from "@/utils/get-stripe";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import { AppBar, Container, Toolbar, Typography,
   Button,Box,
   Grid,
@@ -8,36 +8,40 @@ import { AppBar, Container, Toolbar, Typography,
 import Head from "next/head";
 import { useRouter } from 'next/navigation'
 
+
 export default function Home() {
   const router= useRouter()
+  const {isLoaded,isSignedIn,user}=useUser()
 
-  const handleSubmit=async ()=>{
-    const checkoutSession = await fetch('/api/checkout_session',{
-      method:"POST",
-      headers:{
-        origin:'http://localhost:3000/'
-      }
-    })
 
-    const checkoutSessionJson=await checkoutSession.json()
+  const handleGetStarted = async=>{
 
-    if (checkoutSession.statusCode===500){
-      console.log("error code 500")
-      console.error(checkoutSession.message)
-      return
+    if (!isSignedIn){
+      alert("Please sign in to Generate flashcards")
+      return 
     }
+    router.push('/generate')
 
+
+  }
+
+  const handleSubmit = async () => {
+    const checkoutSession = await fetch('/api/checkout_session', {
+      method: 'POST',
+      headers: { origin: 'http://localhost:3000' },
+    })
+    const checkoutSessionJson = await checkoutSession.json()
+  
     const stripe = await getStripe()
-    
     const {error} = await stripe.redirectToCheckout({
       sessionId: checkoutSessionJson.id,
     })
-
-    if (error){
+  
+    if (error) {
       console.warn(error.message)
     }
-
   }
+  
 
 
 
@@ -65,8 +69,8 @@ export default function Home() {
         <Typography variant="h2"> Welcome to FlashCard SaaS</Typography>
         <Typography variant="h5">The easist way to make flashcards from your text.</Typography>
         <Button variant="contained" color="primary" sx={{mt:2}} 
-        // onClick={router.push('/generate')}
-        > Get Started</Button>
+        onClick={handleGetStarted}
+        > {isSignedIn?"Genrate Flashcards":"Get Started"}</Button>
       </Box>
 
       {/* feature section */}
