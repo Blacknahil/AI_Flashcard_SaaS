@@ -1,3 +1,4 @@
+import getStripe from "@/utils/get-stripe";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { AppBar, Container, Toolbar, Typography,
   Button,Box,
@@ -11,9 +12,26 @@ export default function Home() {
     const checkoutSession = await fetch('api/checkout_sessions',{
       method:"POST",
       headers:{
-        origin:'http;//localhost:3000'
+        origin:'http://localhost:3000'
       }
     })
+
+    const checkoutSessionJson=await checkoutSession.json()
+
+    if (checkoutSession.statusCode===500){
+      console.error(checkoutSession.message)
+      return
+    }
+
+    const stripe= await getStripe()
+
+    const {error}= await stripe.redirectToCheckout({
+      sessionId:checkoutSessionJson.id
+    })
+
+    if (error){
+      console.warn(error.message)
+    }
 
   }
   return (
@@ -103,7 +121,8 @@ export default function Home() {
               <Typography variant="h6" gutterBottom> $10/ month</Typography>
               <Typography sx={{mb:2}}> Unlimited flashcards and storage, with priority support.</Typography>
 
-              <Button variant="contained" color="primary">Choose Pro</Button>
+              <Button variant="contained" color="primary" sx={{mt:2}}
+              onclick={handleSubmit}>Choose Pro</Button>
             </Box>
           </Grid>
 
